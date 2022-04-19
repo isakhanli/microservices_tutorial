@@ -2,6 +2,8 @@ package com.isakhanli.customer;
 
 import com.isakhanli.clients.fraud.FraudCheckResponse;
 import com.isakhanli.clients.fraud.FraudClient;
+import com.isakhanli.clients.notification.NotificationClient;
+import com.isakhanli.clients.notification.NotificationRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -10,8 +12,9 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class CustomerService {
     private final CustomerRepository customerRepository;
-    private final RestTemplate restTemplate;
+//    private final RestTemplate restTemplate;
     private final FraudClient fraudClient;
+    private final NotificationClient notificationClient;
 
     public void register(CustomerRegistrationRequest request) {
         Customer customer = Customer.builder()
@@ -39,5 +42,12 @@ public class CustomerService {
             throw new IllegalStateException("fraudster");
         }
 
+        notificationClient.sendNotification(
+                new NotificationRequest(
+                        customer.getId(),
+                        customer.getEmail(),
+                        String.format("hi I am %s. I am sending some important notification.", customer.getFirstName())
+                )
+        );
     }
 }
